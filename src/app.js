@@ -20,10 +20,6 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(morgan('dev'));
-app.use('/', indexRouter);
-app.use('/', authRouter);
-app.use('/', postsRouter);
-
 
 // INSECURE: hard-coded secret (we’ll fix in secure branch)
 app.use(session({
@@ -39,6 +35,10 @@ app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   next();
 });
+
+app.use('/', indexRouter);
+app.use('/', authRouter);
+app.use('/', postsRouter);
 
 // Routes
 app.use('/', indexRouter);

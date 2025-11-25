@@ -10,6 +10,7 @@
       <nav>
         <a href="/">Home</a> |
         <a href="/posts">Posts</a> |
+        <a href="/search">Search</a> |
         <% if (currentUser) { %>
           <a href="/posts/new">New Post</a> |
           <span>Logged in as <%= currentUser.username %></span> |
@@ -18,7 +19,6 @@
           <a href="/register">Register</a> |
           <a href="/login">Login</a>
         <% } %>
-        | <a href="/search">Search</a>
       </nav>
       <hr />
     </header>
@@ -32,14 +32,11 @@
         <ul>
           <% posts.forEach(post => { %>
             <li>
-              <!-- INSECURE: using <%- ... %> outputs raw HTML (stored XSS) -->
+              <!-- STORED XSS: intentionally unescaped -->
               <a href="/posts/<%= post.id %>"><%- post.title %></a>
-              <small>
-                by <%= post.author || 'Anonymous' %>
-                (on <%= post.created_at %>)
-              </small>
+              <small>by <%= post.author || 'Anonymous' %> on <%= post.created_at %></small>
             </li>
-          <% }); %>
+          <% }) %>
         </ul>
       <% } %>
     </main>
