@@ -4,6 +4,7 @@ const morgan = require('morgan');
 
 const indexRouter = require('./routes/index');
 
+// port setup 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
