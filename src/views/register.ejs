@@ -1,0 +1,19 @@
+<%- include('layout', { 
+  title: 'Register',
+  body: `
+    <h2>Register</h2>
+    ${error ? `<p style="color:red;">${error}</p>` : ''}
+
+    <form method="post" action="/register">
+      <div>
+        <label>Username:</label>
+        <input name="username" required />
+      </div>
+      <div>
+        <label>Password:</label>
+        <input type="password" name="password" required />
+      </div>
+      <button type="submit">Create Account</button>
+    </form>
+  `
+}) %>

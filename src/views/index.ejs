@@ -2,6 +2,10 @@
   title: 'Home',
   body: `
     <p>Welcome to the Student Feedback Portal.</p>
-    <p>This is the very first page!</p>
+    ${
+      currentUser
+        ? `<p>You are logged in as <strong>${currentUser.username}</strong>.</p>`
+        : `<p>Please <a href="/register">register</a> or <a href="/login">login</a>.</p>`
+    }
   `
 }) %>
