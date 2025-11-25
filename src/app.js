@@ -8,7 +8,6 @@ const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth'); // <--- we'll create this next
 
 
-// port setup 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -20,17 +19,27 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(morgan('dev'));
+
+// INSECURE: hard-coded secret (we’ll fix in secure branch)
+app.use(session({
+  secret: 'dev-secret-123',
+  resave: false,
+  saveUninitialized: false
+}));
+
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Make db and session info available in routes/views if needed
+app.use((req, res, next) => {
+  res.locals.currentUser = req.session.user || null;
+  next();
+});
 
 // Routes
 app.use('/', indexRouter);
+app.use('/', authRouter); // for /register and /login
 
-// Basic error handler
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).send('Something went wrong.');
-});
-
+// Start server
 app.listen(PORT, () => {
-  console.log(`App running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`);
 });
