@@ -1,8 +1,12 @@
 const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
+const session = require('express-session');
 
+const db = require('./db');        // <--- ADD THIS
 const indexRouter = require('./routes/index');
+const authRouter = require('./routes/auth'); // <--- we'll create this next
+
 
 // port setup 
 const app = express();
