@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+  </head>
+  <body>
+    <header>
+      <h1>Student Feedback Portal</h1>
+      <nav>
+        <a href="/">Home</a> |
+        <a href="/posts">Posts</a> |
+        <% if (currentUser) { %>
+          <a href="/posts/new">New Post</a> |
+          <span>Logged in as <%= currentUser.username %></span> |
+          <a href="/logout">Logout</a>
+        <% } else { %>
+          <a href="/register">Register</a> |
+          <a href="/login">Login</a>
+        <% } %>
+        | <a href="/search">Search</a>
+      </nav>
+      <hr />
+    </header>
+
+    <main>
+      <h2>All Posts</h2>
+
+      <% if (posts.length === 0) { %>
+        <p>No posts yet.</p>
+      <% } else { %>
+        <ul>
+          <% posts.forEach(post => { %>
+            <li>
+              <!-- INSECURE: using <%- ... %> outputs raw HTML (stored XSS) -->
+              <a href="/posts/<%= post.id %>"><%- post.title %></a>
+              <small>
+                by <%= post.author || 'Anonymous' %>
+                (on <%= post.created_at %>)
+              </small>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </main>
+  </body>
+</html>

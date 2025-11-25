@@ -2,10 +2,11 @@ const path = require('path');
 const express = require('express');
 const morgan = require('morgan');
 const session = require('express-session');
+const postsRouter = require('./routes/posts');
 
-const db = require('./db');        // <--- ADD THIS
+const db = require('./db');
 const indexRouter = require('./routes/index');
-const authRouter = require('./routes/auth'); // <--- we'll create this next
+const authRouter = require('./routes/auth');
 
 
 const app = express();
@@ -19,6 +20,10 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(morgan('dev'));
+app.use('/', indexRouter);
+app.use('/', authRouter);
+app.use('/', postsRouter);
+
 
 // INSECURE: hard-coded secret (we’ll fix in secure branch)
 app.use(session({
