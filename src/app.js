@@ -5,7 +5,7 @@ const session = require('express-session');
 const helmet = require('helmet');
 require('dotenv').config();
 
-const db = require('./db');             // ✅ THIS – not ./db.sqlite or ./db_secure.sqlite
+const db = require('./db');             // THIS – not ./db.sqlite or ./db_secure.sqlite
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const postsRouter = require('./routes/posts');

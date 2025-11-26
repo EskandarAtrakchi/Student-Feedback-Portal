@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../db');
+const db = require('../db.js');
 const bcrypt = require('bcrypt');
 const { body, validationResult } = require('express-validator');
 
@@ -11,7 +11,7 @@ router.get('/register', (req, res) => {
   res.render('register', { title: 'Register', error: null });
 });
 
-// POST /register (SECURE: validation + hashing + parameterized query)
+// POST /register (SECURE)
 router.post(
   '/register',
   [
@@ -58,7 +58,7 @@ router.get('/login', (req, res) => {
   res.render('login', { title: 'Login', error: null });
 });
 
-// POST /login (SECURE: parameterized + bcrypt compare)
+// POST /login
 router.post(
   '/login',
   [
@@ -95,7 +95,6 @@ router.post(
           return res.status(401).render('login', { title: 'Login', error: 'Invalid username or password.' });
         }
 
-        // Success: store minimal user info in session
         req.session.user = {
           id: user.id,
           username: user.username,

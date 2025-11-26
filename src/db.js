@@ -1,7 +1,9 @@
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
-const dbPath = path.join(__dirname, '..', 'db.sqlite');
+// Use a SEPARATE DB file for the secure version
+// This avoids conflicts with the insecure branch's db.sqlite
+const dbPath = path.join(__dirname, '..', 'db_secure.sqlite');
 
 const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
@@ -12,6 +14,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 });
 
 db.serialize(() => {
+  // SECURE users table with password_hash
   db.run(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
