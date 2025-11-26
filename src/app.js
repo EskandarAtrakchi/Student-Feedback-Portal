@@ -5,7 +5,7 @@ const session = require('express-session');
 const helmet = require('helmet');
 require('dotenv').config();
 
-const db = require('./db');
+const db = require('./db');             // ✅ THIS – not ./db.sqlite or ./db_secure.sqlite
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const postsRouter = require('./routes/posts');
@@ -20,27 +20,26 @@ app.set('view engine', 'ejs');
 // Security headers
 app.use(helmet());
 
-// Basic logging of HTTP requests
+// HTTP logging
 app.use(morgan('dev'));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
-// Use secret from env (NO hard-coded secrets)
+// Session config (uses .env)
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret-change-me',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    httpOnly: true,        // helps prevent XSS from reading cookie
+    httpOnly: true,
     sameSite: 'lax'
-    // secure: true        // I Will enable this in HTTPS production
   }
 }));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Make currentUser available in all EJS views
+// Expose currentUser to all views
 app.use((req, res, next) => {
   res.locals.currentUser = req.session.user || null;
   next();
@@ -53,7 +52,7 @@ app.use('/', postsRouter);
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err); // later we’ll plug winston here
+  console.error(err);
   res.status(500).send('An internal error occurred.');
 });
 
