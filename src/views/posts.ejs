@@ -33,7 +33,7 @@
           <% posts.forEach(post => { %>
             <li>
               <!-- STORED XSS: intentionally unescaped -->
-              <a href="/posts/<%= post.id %>"><%- post.title %></a>
+              <a href="/posts/<%= post.id %>"><%= post.title %></a>
               <small>by <%= post.author || 'Anonymous' %> on <%= post.created_at %></small>
             </li>
           <% }) %>
