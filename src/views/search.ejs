@@ -31,7 +31,7 @@
 
       <% if (q) { %>
         <!-- INSECURE: reflected XSS via raw HTML -->
-        <p>You searched for: <%- q %></p>
+        <p>You searched for: <%= q %></p>
       <% } %>
 
       <% if (results && results.length > 0) { %>
