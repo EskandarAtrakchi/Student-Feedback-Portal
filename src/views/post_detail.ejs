@@ -24,11 +24,10 @@
 
     <main>
       <article>
-        <!-- INSECURE: raw HTML output for title and content -->
-        <h2><%- post.title %></h2>
+        <h2><%= post.title %></h2>
         <p>by <%= post.author || 'Anonymous' %> (on <%= post.created_at %>)</p>
         <div>
-          <%- post.content %>
+          <%= post.content %>
         </div>
       </article>
 
@@ -41,12 +40,11 @@
           <ul>
             <% comments.forEach(c => { %>
               <li>
-                <!-- INSECURE: comment content not escaped (stored XSS) -->
                 <strong><%= c.author_name %>:</strong>
-                <span><%- c.content %></span>
+                <span><%= c.content %></span>
                 <small> (on <%= c.created_at %>)</small>
               </li>
-            <% }); %>
+            <% }) %>
           </ul>
         <% } %>
       </section>
@@ -67,16 +65,18 @@
       </section>
 
       <section>
-        <h3>Status message (DOM-based XSS demo)</h3>
+        <h3>Status message</h3>
         <div id="status"></div>
 
         <script>
-          // INSECURE: DOM-based XSS using innerHTML
-          const params = new URLSearchParams(window.location.search);
-          const msg = params.get('msg');
-          if (msg) {
-            document.getElementById('status').innerHTML = msg;
-          }
+          // SECURE: use textContent instead of innerHTML
+          (function () {
+            const params = new URLSearchParams(window.location.search);
+            const msg = params.get('msg');
+            if (msg) {
+              document.getElementById('status').textContent = msg;
+            }
+          })();
         </script>
       </section>
     </main>
