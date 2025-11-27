@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../db.js');
 const bcrypt = require('bcrypt');
 const { body, validationResult } = require('express-validator');
+const logger = require('../logger');
 
 const SALT_ROUNDS = 10;
 
@@ -17,35 +18,56 @@ router.post(
   [
     body('username')
       .trim()
-      .isLength({ min: 3 }).withMessage('Username must be at least 3 characters long.'),
+      .isLength({ min: 3 })
+      .withMessage('Username must be at least 3 characters long.'),
     body('password')
-      .isLength({ min: 6 }).withMessage('Password must be at least 6 characters long.')
+      .isLength({ min: 6 })
+      .withMessage('Password must be at least 6 characters long.')
   ],
   (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       const firstError = errors.array()[0].msg;
-      return res.status(400).render('register', { title: 'Register', error: firstError });
+      return res
+        .status(400)
+        .render('register', { title: 'Register', error: firstError });
     }
 
     const { username, password } = req.body;
 
     bcrypt.hash(password, SALT_ROUNDS, (err, hash) => {
       if (err) {
-        console.error('Error hashing password:', err);
-        return res.status(500).render('register', { title: 'Register', error: 'Internal error.' });
+        logger.error('Error hashing password', {
+          username,
+          error: err.message
+        });
+        return res
+          .status(500)
+          .render('register', { title: 'Register', error: 'Internal error.' });
       }
 
       const query = 'INSERT INTO users (username, password_hash) VALUES (?, ?)';
       db.run(query, [username, hash], function (dbErr) {
         if (dbErr) {
-          console.error('Error creating user:', dbErr);
+          logger.warn('Failed to create user', {
+            username,
+            error: dbErr.message
+          });
+
           let msg = 'Could not create user.';
           if (dbErr.message && dbErr.message.includes('UNIQUE')) {
             msg = 'Username already exists.';
           }
-          return res.status(400).render('register', { title: 'Register', error: msg });
+
+          return res
+            .status(400)
+            .render('register', { title: 'Register', error: msg });
         }
+
+        logger.info('User registered successfully', {
+          userId: this.lastID,
+          username
+        });
 
         res.redirect('/login');
       });
@@ -69,7 +91,9 @@ router.post(
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       const firstError = errors.array()[0].msg;
-      return res.status(400).render('login', { title: 'Login', error: firstError });
+      return res
+        .status(400)
+        .render('login', { title: 'Login', error: firstError });
     }
 
     const { username, password } = req.body;
@@ -77,22 +101,44 @@ router.post(
     const query = 'SELECT * FROM users WHERE username = ?';
     db.get(query, [username], (err, user) => {
       if (err) {
-        console.error('Login error:', err);
-        return res.status(500).render('login', { title: 'Login', error: 'Internal error.' });
+        logger.error('Database error during login', {
+          username,
+          error: err.message
+        });
+        return res
+          .status(500)
+          .render('login', { title: 'Login', error: 'Internal error.' });
       }
 
       if (!user) {
-        return res.status(401).render('login', { title: 'Login', error: 'Invalid username or password.' });
+        logger.warn('Login failed: unknown username', { username });
+        return res
+          .status(401)
+          .render('login', {
+            title: 'Login',
+            error: 'Invalid username or password.'
+          });
       }
 
       bcrypt.compare(password, user.password_hash, (bcryptErr, match) => {
         if (bcryptErr) {
-          console.error('Bcrypt compare error:', bcryptErr);
-          return res.status(500).render('login', { title: 'Login', error: 'Internal error.' });
+          logger.error('Bcrypt compare error', {
+            username,
+            error: bcryptErr.message
+          });
+          return res
+            .status(500)
+            .render('login', { title: 'Login', error: 'Internal error.' });
         }
 
         if (!match) {
-          return res.status(401).render('login', { title: 'Login', error: 'Invalid username or password.' });
+          logger.warn('Login failed: invalid password', { username });
+          return res
+            .status(401)
+            .render('login', {
+              title: 'Login',
+              error: 'Invalid username or password.'
+            });
         }
 
         req.session.user = {
@@ -100,6 +146,11 @@ router.post(
           username: user.username,
           role: user.role
         };
+
+        logger.info('User logged in successfully', {
+          userId: user.id,
+          username: user.username
+        });
 
         res.redirect('/');
       });
@@ -109,7 +160,14 @@ router.post(
 
 // GET /logout
 router.get('/logout', (req, res) => {
+  const user = req.session.user;
   req.session.destroy(() => {
+    if (user) {
+      logger.info('User logged out', {
+        userId: user.id,
+        username: user.username
+      });
+    }
     res.redirect('/');
   });
 });

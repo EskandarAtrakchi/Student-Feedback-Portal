@@ -3,9 +3,11 @@ const express = require('express');
 const morgan = require('morgan');
 const session = require('express-session');
 const helmet = require('helmet');
+const logger = require('./logger');
+
 require('dotenv').config();
 
-const db = require('./db');             // THIS – not ./db.sqlite or ./db_secure.sqlite
+const db = require('./db');// THIS – not ./db.sqlite or ./db_secure.sqlite
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const postsRouter = require('./routes/posts');
@@ -52,10 +54,17 @@ app.use('/', postsRouter);
 
 // Error handler
 app.use((err, req, res, next) => {
-  console.error(err);
+  logger.error('Unhandled application error', {
+    message: err.message,
+    stack: err.stack,
+    path: req.path,
+    method: req.method
+  });
   res.status(500).send('An internal error occurred.');
 });
 
+
 app.listen(PORT, () => {
+  logger.info(`Secure app running on http://localhost:${PORT}`);
   console.log(`Secure app running on http://localhost:${PORT}`);
 });
