@@ -7,6 +7,18 @@ const logger = require('../logger');
 
 const SALT_ROUNDS = 10;
 
+// Simple auth guard
+function requireLogin(req, res, next) {
+  if (!req.session.user) {
+    logger.warn('Unauthenticated access to protected route', {
+      path: req.path,
+      method: req.method
+    });
+    return res.redirect('/login');
+  }
+  next();
+}
+
 // GET /register
 router.get('/register', (req, res) => {
   res.render('register', { title: 'Register', error: null });
@@ -169,6 +181,193 @@ router.get('/logout', (req, res) => {
       });
     }
     res.redirect('/');
+  });
+});
+
+/* ---------- PROFILE VIEW / UPDATE / DELETE ---------- */
+
+// GET /profile  (view profile & edit form)
+router.get('/profile', requireLogin, (req, res) => {
+  const userId = req.session.user.id;
+
+  const query = `
+    SELECT id, username, role, created_at
+    FROM users
+    WHERE id = ?
+  `;
+
+  db.get(query, [userId], (err, user) => {
+    if (err) {
+      logger.error('Error loading profile', { userId, error: err.message });
+      return res.status(500).send('Error loading profile.');
+    }
+
+    if (!user) {
+      logger.warn('Profile requested but user not found in DB', { userId });
+      return res.status(404).send('User not found.');
+    }
+
+    res.render('profile', {
+      title: 'Your Profile',
+      user,
+      error: null,
+      message: req.query.msg || ''
+    });
+  });
+});
+
+// POST /profile  (update username and/or password)
+router.post(
+  '/profile',
+  requireLogin,
+  [
+    body('username')
+      .trim()
+      .isLength({ min: 3 })
+      .withMessage('Username must be at least 3 characters long.'),
+    body('new_password')
+      .optional({ checkFalsy: true })
+      .isLength({ min: 6 })
+      .withMessage('New password must be at least 6 characters long.')
+  ],
+  (req, res) => {
+    const userId = req.session.user.id;
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      const firstError = errors.array()[0].msg;
+
+      // Load user again to re-render profile page with error
+      const query = `
+        SELECT id, username, role, created_at
+        FROM users
+        WHERE id = ?
+      `;
+      return db.get(query, [userId], (err, user) => {
+        if (err || !user) {
+          logger.error('Error reloading profile for validation error', {
+            userId,
+            error: err && err.message
+          });
+          return res.status(500).send('Error loading profile.');
+        }
+
+        return res.render('profile', {
+          title: 'Your Profile',
+          user,
+          error: firstError,
+          message: ''
+        });
+      });
+    }
+
+    const { username, new_password } = req.body;
+
+    // Decide update query based on whether password is being changed
+    if (new_password && new_password.trim() !== '') {
+      // Update username + password
+      bcrypt.hash(new_password, SALT_ROUNDS, (err, hash) => {
+        if (err) {
+          logger.error('Error hashing new password during profile update', {
+            userId,
+            error: err.message
+          });
+          return res.status(500).send('Error updating profile.');
+        }
+
+        const query = `
+          UPDATE users
+          SET username = ?, password_hash = ?
+          WHERE id = ?
+        `;
+        db.run(query, [username, hash, userId], function (dbErr) {
+          if (dbErr) {
+            logger.error('Error updating profile with new password', {
+              userId,
+              error: dbErr.message
+            });
+            let msg = 'Error updating profile.';
+            if (dbErr.message && dbErr.message.includes('UNIQUE')) {
+              msg = 'Username already exists.';
+            }
+            return res.redirect(`/profile?msg=${encodeURIComponent(msg)}`);
+          }
+
+          // update session username
+          req.session.user.username = username;
+
+          logger.info('User updated profile (username + password)', {
+            userId,
+            username
+          });
+
+          return res.redirect(
+            `/profile?msg=${encodeURIComponent('Profile updated successfully.')}`
+          );
+        });
+      });
+    } else {
+      // Update only username
+      const query = `
+        UPDATE users
+        SET username = ?
+        WHERE id = ?
+      `;
+      db.run(query, [username, userId], function (dbErr) {
+        if (dbErr) {
+          logger.error('Error updating profile username only', {
+            userId,
+            error: dbErr.message
+          });
+          let msg = 'Error updating profile.';
+          if (dbErr.message && dbErr.message.includes('UNIQUE')) {
+            msg = 'Username already exists.';
+          }
+          return res.redirect(`/profile?msg=${encodeURIComponent(msg)}`);
+        }
+
+        req.session.user.username = username;
+
+        logger.info('User updated profile (username only)', {
+          userId,
+          username
+        });
+
+        return res.redirect(
+          `/profile?msg=${encodeURIComponent('Profile updated successfully.')}`
+        );
+      });
+    }
+  }
+);
+
+// GET /profile/delete  (confirm delete)
+router.get('/profile/delete', requireLogin, (req, res) => {
+  res.render('profile_delete', {
+    title: 'Delete Account'
+  });
+});
+
+// POST /profile/delete  (perform delete)
+router.post('/profile/delete', requireLogin, (req, res) => {
+  const userId = req.session.user.id;
+
+  const query = 'DELETE FROM users WHERE id = ?';
+
+  db.run(query, [userId], function (err) {
+    if (err) {
+      logger.error('Error deleting user account', {
+        userId,
+        error: err.message
+      });
+      return res.status(500).send('Error deleting account.');
+    }
+
+    logger.info('User account deleted', { userId });
+
+    req.session.destroy(() => {
+      res.redirect('/');
+    });
   });
 });
 
