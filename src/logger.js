@@ -8,7 +8,7 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir);
 }
 
-const logger = createLogger({
+const logger = createLogger({ 
   level: 'info',
   format: format.combine(
     format.timestamp(),
