@@ -4,7 +4,6 @@
     <meta charset="utf-8" />
     <title><%= title %></title>
     <link rel="stylesheet" href="/styles.css" />
-
   </head>
   <body>
     <header>
@@ -13,8 +12,8 @@
         <a href="/">Home</a> |
         <a href="/posts">Posts</a> |
         <a href="/search">Search</a> |
+        <a href="/profile">Profile</a> |
         <% if (currentUser) { %>
-          <a href="/posts/new">New Post</a> |
           <span>Logged in as <%= currentUser.username %></span> |
           <a href="/logout">Logout</a>
           <a href="/profile">Profile</a>
@@ -23,25 +22,23 @@
           <a href="/login">Login</a>
         <% } %>
       </nav>
-      <hr />
     </header>
 
     <main>
-      <h2>All Posts</h2>
+      <section>
+        <h2>Delete Account</h2>
+        <p>
+          Are you sure you want to delete your account? This action cannot be undone.
+        </p>
 
-      <% if (posts.length === 0) { %>
-        <p>No posts yet.</p>
-      <% } else { %>
-        <ul>
-          <% posts.forEach(post => { %>
-            <li>
-              <!-- STORED XSS: intentionally unescaped -->
-              <a href="/posts/<%= post.id %>"><%= post.title %></a>
-              <small>by <%= post.author || 'Anonymous' %> on <%= post.created_at %></small>
-            </li>
-          <% }) %>
-        </ul>
-      <% } %>
+        <form method="post" action="/profile/delete">
+          <button type="submit">Yes, delete my account</button>
+        </form>
+
+        <p style="margin-top: 1rem;">
+          <a href="/profile">Cancel and go back to profile</a>
+        </p>
+      </section>
     </main>
   </body>
 </html>
