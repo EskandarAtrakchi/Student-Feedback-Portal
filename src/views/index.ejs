@@ -32,7 +32,7 @@
         <p>You are logged in as <strong><%= currentUser.username %></strong>.</p>
       <% } else { %>
         <p>Please <a href="/register">register</a> or <a href="/login">login</a>.</p>
-        <p>This is weak insecure website, database can be injected for example you can try SQL injection. <Strong><code><em><h2>' OR '1'='1</h2></em></code></Strong> or you can use <Strong><code><em><h2>'; DROP TABLE users; --</h2></em></code></Strong></p>
+        <p>This is strong secure website, database cannot be injected for example you can try SQL injection. <Strong><code><em><h2>' OR '1'='1</h2></em></code></Strong> or you can use <Strong><code><em><h2>'; DROP TABLE users; --</h2></em></code></Strong> and it will not work.</p>
       <% } %>
     </main>
   </body>
