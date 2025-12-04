@@ -1,8 +1,3 @@
-<head>
-  <meta charset="utf-8" />
-  <title>Login</title>
-  <link rel="stylesheet" href="/styles.css" />
-</head>
 <%- include('layout', { 
   title: 'Login',
   body: `
@@ -10,6 +5,7 @@
     ${error ? `<p style="color:red;">${error}</p>` : ''}
 
     <form method="post" action="/login">
+      <input type="hidden" name="_csrf" value="${csrfToken}">
       <div>
         <label>Username:</label>
         <input name="username" required />

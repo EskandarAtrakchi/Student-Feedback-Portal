@@ -4,6 +4,7 @@ const morgan = require('morgan');
 const session = require('express-session');
 const helmet = require('helmet');
 const logger = require('./logger');
+const csrf = require('csurf');
 
 require('dotenv').config();// Load environment variables from .env file
 
@@ -18,9 +19,6 @@ const PORT = process.env.PORT || 3000;// Define port
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-// Security headers
-app.use(helmet());
 
 // HTTP logging
 app.use(morgan('dev'));
@@ -39,6 +37,10 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
+
+// Security headers
+app.use(helmet());
+
 // Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -48,10 +50,35 @@ app.use((req, res, next) => {
   next();
 });
 
+// CSRF protection (uses session)
+const csrfProtection = csrf();
+// Apply CSRF protection to all POST, PUT, DELETE routes
+app.use(csrfProtection);
+
+// Make csrfToken available in all EJS views
+app.use((req, res, next) => {
+  res.locals.csrfToken = req.csrfToken();
+  res.locals.currentUser = req.session.user || null; // you probably already have this
+  next();
+});
+
 // Routes
 app.use('/', indexRouter);
 app.use('/', authRouter);
 app.use('/', postsRouter);
+
+// CSRF error handler
+app.use((err, req, res, next) => {
+  if (err.code === 'EBADCSRFTOKEN') {
+    logger.warn('Invalid CSRF token', {
+      path: req.path,
+      method: req.method,
+      user: req.session.user ? req.session.user.username : 'guest',
+    });
+    return res.status(403).send('Form tampered with or session expired.');
+  }
+  next(err);
+});
 
 // Error handler
 app.use((err, req, res, next) => {

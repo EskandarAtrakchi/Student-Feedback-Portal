@@ -45,6 +45,7 @@
         <h3>Edit Profile</h3>
 
         <form method="post" action="/profile">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <div>
             <label>Username</label>
             <input type="text" name="username" value="<%= user.username %>" required />

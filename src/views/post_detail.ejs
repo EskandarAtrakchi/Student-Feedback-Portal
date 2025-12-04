@@ -54,6 +54,7 @@
       <section>
         <h3>Add a Comment</h3>
         <form method="post" action="/posts/<%= post.id %>/comments">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
           <div>
             <label>Your name:</label>
             <input name="author_name" required />
