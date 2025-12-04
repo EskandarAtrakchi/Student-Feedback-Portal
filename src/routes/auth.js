@@ -7,11 +7,11 @@ router.get('/register', (req, res) => {
   res.render('register', { title: 'Register', error: null });
 });
 
-// POST /register (INSECURE: plaintext password)
+// POST /register (insecure: plaintext password)
 router.post('/register', (req, res) => {
   const { username, password } = req.body;
 
-  // INSECURE: no validation, no hashing, string concatenation
+  // insecure: no validation, no hashing, string concatenation
   const query = `
     INSERT INTO users (username, password)
     VALUES ('${username}', '${password}')
@@ -31,11 +31,11 @@ router.get('/login', (req, res) => {
   res.render('login', { title: 'Login', error: null });
 });
 
-// POST /login (INSECURE: SQL Injection possible)
+// POST /login (insecure: SQL Injection possible)
 router.post('/login', (req, res) => {
   const { username, password } = req.body;
 
-  // SUPER INSECURE: vulnerable to SQL injection
+  // very insecure: vulnerable to SQL injection
   const query = `
     SELECT * FROM users
     WHERE username = '${username}' AND password = '${password}'
