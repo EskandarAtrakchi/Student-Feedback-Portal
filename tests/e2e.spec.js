@@ -4,6 +4,7 @@ const { test, expect } = require('@playwright/test');
 test('register, login, create post, search', async ({ page }) => {
   const username = 'playwrightUser' + Date.now();
   const password = 'Password123!';
+  const postTitle = 'Playwright test post ' + Date.now();
 
   // Register
   await page.goto('/register');
@@ -24,14 +25,17 @@ test('register, login, create post, search', async ({ page }) => {
 
   // Create post
   await page.goto('/posts/new');
-  await page.fill('input[name="title"]', 'Playwright test post');
-  await page.fill('textarea[name="content"]', 'This post was created by an automated test.');
+  await page.fill('input[name="title"]', postTitle);
+  await page.fill(
+    'textarea[name="content"]',
+    'This post was created by an automated test.'
+  );
   await page.click('button[type="submit"]');
 
-  // Verify post is visible
-  await expect(page.getByText('Playwright test post')).toBeVisible();
+  // Verify the new post is visible on the posts list
+  await expect(page.getByText(postTitle, { exact: true })).toBeVisible();
 
   // Search for the post
-  await page.goto('/search?q=Playwright');
-  await expect(page.getByText('Playwright test post')).toBeVisible();
+  await page.goto(`/search?q=Playwright`);
+  await expect(page.getByText(postTitle, { exact: true })).toBeVisible();
 });
