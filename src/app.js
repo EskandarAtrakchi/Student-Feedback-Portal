@@ -5,15 +5,15 @@ const session = require('express-session');
 const helmet = require('helmet');
 const logger = require('./logger');
 
-require('dotenv').config();
+require('dotenv').config();// Load environment variables from .env file
 
-const db = require('./db');// THIS – not ./db.sqlite or ./db_secure.sqlite
-const indexRouter = require('./routes/index');
-const authRouter = require('./routes/auth');
-const postsRouter = require('./routes/posts');
+const db = require('./db');// this is not ./db.sqlite or ./db_secure.sqlite
+const indexRouter = require('./routes/index');// Home route
+const authRouter = require('./routes/auth');// Authentication routes
+const postsRouter = require('./routes/posts');// Blog post routes
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+const app = express();// Create Express app
+const PORT = process.env.PORT || 3000;// Define port
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,12 +24,13 @@ app.use(helmet());
 
 // HTTP logging
 app.use(morgan('dev'));
-
+// Body parsing middleware
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 // Session config (uses .env)
 app.use(session({
+  // In a production app, use a more secure store for sessions
   secret: process.env.SESSION_SECRET || 'fallback-secret-change-me',
   resave: false,
   saveUninitialized: false,
@@ -38,7 +39,7 @@ app.use(session({
     sameSite: 'lax'
   }
 }));
-
+// Static files
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Expose currentUser to all views
@@ -60,10 +61,9 @@ app.use((err, req, res, next) => {
     path: req.path,
     method: req.method
   });
-  res.status(500).send('An internal error occurred.');
+  res.status(500).send('An internal error occurred.');// Generic error message
 });
-
-
+// Start server
 app.listen(PORT, () => {
   logger.info(`Secure app running on http://localhost:${PORT}`);
   console.log(`Secure app running on http://localhost:${PORT}`);
