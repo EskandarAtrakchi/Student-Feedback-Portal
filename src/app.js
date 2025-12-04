@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(morgan('dev'));
 
-// INSECURE: hard-coded secret (we’ll fix in secure branch)
+// insecure which it is hard-coded secret (I will fix in secure branch)
 app.use(session({
   secret: 'dev-secret-123',
   resave: false,
