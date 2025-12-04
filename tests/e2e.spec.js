@@ -16,7 +16,11 @@ test('register, login, create post, search', async ({ page }) => {
   await page.fill('input[name="username"]', username);
   await page.fill('input[name="password"]', password);
   await page.click('button[type="submit"]');
-  await expect(page.locator('text=Logged in as')).toContainText(username);
+
+  // Assert user is logged in - match exact full text
+  await expect(
+    page.getByText(`Logged in as ${username}`, { exact: true })
+  ).toBeVisible();
 
   // Create post
   await page.goto('/posts/new');
@@ -25,9 +29,9 @@ test('register, login, create post, search', async ({ page }) => {
   await page.click('button[type="submit"]');
 
   // Verify post is visible
-  await expect(page.locator('text=Playwright test post')).toBeVisible();
+  await expect(page.getByText('Playwright test post')).toBeVisible();
 
   // Search for the post
   await page.goto('/search?q=Playwright');
-  await expect(page.locator('text=Playwright test post')).toBeVisible();
+  await expect(page.getByText('Playwright test post')).toBeVisible();
 });
