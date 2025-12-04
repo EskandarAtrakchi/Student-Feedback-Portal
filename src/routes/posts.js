@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
-// Simple middleware: require login for some routes
+// Simple middleware require login for some routes
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     return res.redirect('/login');
@@ -10,7 +10,7 @@ function requireLogin(req, res, next) {
   next();
 }
 
-// LIST ALL POSTS
+// list posts 
 router.get('/posts', (req, res) => {
   const query = `
     SELECT posts.*, users.username AS author
@@ -32,17 +32,17 @@ router.get('/posts', (req, res) => {
   });
 });
 
-// SHOW FORM TO CREATE POST (LOGIN REQUIRED)
+// show form to create post but login required 
 router.get('/posts/new', requireLogin, (req, res) => {
   res.render('new_post', { title: 'New Post', error: null });
 });
 
-// CREATE POST (INSECURE: XSS + SQL injection risk through title/content)
+// create post (insecure: XSS + SQL injection risk through title/content)
 router.post('/posts/new', requireLogin, (req, res) => {
   const { title, content } = req.body;
   const userId = req.session.user.id;
 
-  // INSECURE: string concatenation into SQL
+  // insecure: string concatenation into SQL
   const query = `
     INSERT INTO posts (title, content, user_id)
     VALUES ('${title}', '${content}', ${userId})
@@ -57,7 +57,7 @@ router.post('/posts/new', requireLogin, (req, res) => {
   });
 });
 
-// VIEW SINGLE POST + COMMENTS
+// view each post with its comment
 router.get('/posts/:id', (req, res) => {
   const postId = req.params.id;
 
@@ -65,7 +65,7 @@ router.get('/posts/:id', (req, res) => {
     SELECT posts.*, users.username AS author
     FROM posts
     LEFT JOIN users ON posts.user_id = users.id
-    WHERE posts.id = ${postId}        -- INSECURE: direct interpolation
+    WHERE posts.id = ${postId}        -- insecure: direct interpolation
   `;
 
   const commentsQuery = `
@@ -95,7 +95,7 @@ router.get('/posts/:id', (req, res) => {
   });
 });
 
-// ADD COMMENT (INSECURE XSS + SQL injection risk)
+// use can add comment (insecure XSS + SQL injection risk)
 router.post('/posts/:id/comments', (req, res) => {
   const postId = req.params.id;
   const { author_name, content } = req.body;
@@ -116,7 +116,7 @@ router.post('/posts/:id/comments', (req, res) => {
   });
 });
 
-// SEARCH POSTS (INSECURE: SQL injection + reflected XSS)
+// search post (insecure: SQL injection + reflected XSS)
 router.get('/search', (req, res) => {
   const q = req.query.q || '';
 
@@ -128,7 +128,7 @@ router.get('/search', (req, res) => {
     });
   }
 
-  // INSECURE: direct concatenation - SQL injection
+  // insecure: direct concatenation and SQL injection
   const query = `
     SELECT * FROM posts
     WHERE title LIKE '%${q}%' OR content LIKE '%${q}%'
