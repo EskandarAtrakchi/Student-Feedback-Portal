@@ -33,7 +33,7 @@
       </form>
 
       <% if (q) { %>
-        <!-- INSECURE: reflected XSS via raw HTML -->
+        <!-- secure reflected XSS -->
         <p>You searched for: <%= q %></p>
       <% } %>
 
