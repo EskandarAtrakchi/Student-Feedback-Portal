@@ -1,0 +1,41 @@
+// tests/e2e.spec.js
+const { test, expect } = require('@playwright/test');
+
+test('register, login, create post, search', async ({ page }) => {
+  const username = 'playwrightUser' + Date.now();
+  const password = 'Password123!';
+  const postTitle = 'Playwright test post ' + Date.now();
+
+  // Register
+  await page.goto('/register');
+  await page.fill('input[name="username"]', username);
+  await page.fill('input[name="password"]', password);
+  await page.click('button[type="submit"]');
+
+  // Login
+  await page.goto('/login');
+  await page.fill('input[name="username"]', username);
+  await page.fill('input[name="password"]', password);
+  await page.click('button[type="submit"]');
+
+  // Assert user is logged in - match exact full text
+  await expect(
+    page.getByText(`Logged in as ${username}`, { exact: true })
+  ).toBeVisible();
+
+  // Create post
+  await page.goto('/posts/new');
+  await page.fill('input[name="title"]', postTitle);
+  await page.fill(
+    'textarea[name="content"]',
+    'This post was created by an automated test.'
+  );
+  await page.click('button[type="submit"]');
+
+  // Verify the new post is visible on the posts list
+  await expect(page.getByText(postTitle, { exact: true })).toBeVisible();
+
+  // Search for the post
+  await page.goto(`/search?q=Playwright`);
+  await expect(page.getByText(postTitle, { exact: true })).toBeVisible();
+});
