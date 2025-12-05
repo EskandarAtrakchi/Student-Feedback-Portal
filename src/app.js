@@ -28,7 +28,6 @@ app.use(express.json());
 
 // Session config (uses .env)
 app.use(session({
-  // In a production app, use a more secure store for sessions
   secret: process.env.SESSION_SECRET || 'fallback-secret-change-me',
   resave: false,
   saveUninitialized: false,
