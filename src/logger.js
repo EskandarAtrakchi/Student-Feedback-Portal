@@ -7,7 +7,7 @@ const { createLogger, format, transports } = require('winston');
 const logDir = path.join(__dirname, '..', 'logs');
 if (!fs.existsSync(logDir)) {// Create logs directory if it doesn't exist
   fs.mkdirSync(logDir);
-}
+} 
 // Create Winston logger instance
 const logger = createLogger({ 
   level: 'info',
@@ -40,3 +40,4 @@ if (process.env.NODE_ENV !== 'production') {
 }
 // Export the logger
 module.exports = logger;
+
