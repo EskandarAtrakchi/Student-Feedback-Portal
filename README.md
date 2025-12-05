@@ -2,12 +2,12 @@
 
 A simple Node.js + Express web application that lets students register, log in, and post feedback, with comments on each post.
 
-This project is built specifically for a security assignment and has **two separate implementations**:
+This project is built specifically for a security assignment only feel free to use it:
 
 - `insecure` branch – intentionally vulnerable (SQL Injection, XSS, Sensitive Data Exposure).
 - `secure` branch – mitigates these issues using OWASP recommendations (parameterized queries, escaping, hashing, CSRF, security headers, logging, etc).
 
-The app uses **SQLite** as the database and **EJS** as the view engine.
+The app uses **SQLite3** as the database and **EJS** as the view engine.
 
 ---
 
@@ -16,7 +16,6 @@ The app uses **SQLite** as the database and **EJS** as the view engine.
 - **Node.js** (v18+ recommended, Node 20/22 works)
 - **npm** (comes with Node)
 - **Git**
-- (Optional) [DB Browser for SQLite](https://sqlitebrowser.org/) if you want to inspect the `.sqlite` database files.
 
 ---
 
@@ -32,3 +31,6 @@ npm install
 npm run dev
 ```
 you can change the branch and access the web application via [local host 3000](http://localhost:3000/ )
+
+## 3. Alternative access:
+I have hosted the two branches on render you can access them 
