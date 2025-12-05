@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Student Feedback Portal</h1>
+      <nav>
+        <a href="/">Home</a> |
+        <a href="/posts">Posts</a> |
+        <a href="/search">Search</a> |
+        <a href="/profile">Profile</a> |
+        <% if (currentUser) { %>
+          <span>Logged in as <%= currentUser.username %></span> |
+          <a href="/logout">Logout</a>
+          <a href="/profile">Profile</a>
+        <% } else { %>
+          <a href="/register">Register</a> |
+          <a href="/login">Login</a>
+        <% } %>
+      </nav>
+    </header>
+
+    <main>
+      <section>
+        <h2>Delete Account</h2>
+        <p>
+          Are you sure you want to delete your account? This action cannot be undone.
+        </p>
+
+        <form method="post" action="/profile/delete">
+          <button type="submit">Yes, delete my account</button>
+        </form>
+
+        <p style="margin-top: 1rem;">
+          <a href="/profile">Cancel and go back to profile</a>
+        </p>
+      </section>
+    </main>
+  </body>
+</html>

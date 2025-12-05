@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles.css" />
+
+  </head>
+  <body>
+    <header>
+      <h1>Student Feedback Portal</h1>
+      <nav>
+        <a href="/">Home</a> |
+        <a href="/posts">Posts</a> |
+        <a href="/search">Search</a> |
+        <a href="/logout">Logout</a>
+      </nav>
+      <hr />
+    </header>
+
+    <main>
+      <h2>New Post</h2>
+
+      <% if (error) { %>
+        <p style="color:red;"><%= error %></p>
+      <% } %>
+
+      <form method="post" action="/posts/new">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <div>
+          <label>Title:</label>
+          <input type="text" name="title" required />
+        </div>
+        <div>
+          <label>Content:</label><br />
+          <textarea name="content" rows="5" cols="40" required></textarea>
+        </div>
+        <button type="submit">Create Post</button>
+      </form>
+    </main>
+  </body>
+</html>
