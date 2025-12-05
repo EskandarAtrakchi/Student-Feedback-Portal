@@ -34,3 +34,6 @@ you can change the branch and access the web application via [local host 3000](h
 
 ## 3. Alternative access:
 I have hosted the two branches on render you can access them 
+
+### insecure: https://student-feedback-portal-insecure.onrender.com 
+### secure: https://student-feedback-portal-05vc.onrender.com
