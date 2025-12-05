@@ -9,7 +9,7 @@ This project is built specifically for a security assignment only feel free to u
 
 The app uses **SQLite3** as the database and **EJS** as the view engine.
 
----
+----
 
 ## 1. Prerequisites
 
